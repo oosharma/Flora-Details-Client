@@ -100,7 +100,11 @@ class App extends Component {
         isAuthorized: null,
         isLoading: false,
         user: null
-      }
+      },
+      file: null,
+      editImage: false,
+      uploadMessage: null,
+      editImageLoading: false
     };
   }
 
@@ -666,7 +670,61 @@ class App extends Component {
     this.userRegister();
   };
 
+  handleProfilePic = () => {
+    this.setState({ editImage: true });
+  };
+
+  submitFile = event => {
+    this.setState({ editImageLoading: true });
+    const token = this.state.auth.token;
+    const userEmail = this.state.auth.email;
+    event.preventDefault();
+    const formData = new FormData();
+    if (this.state.file && this.state.file[0]) {
+      formData.append("file", this.state.file[0]);
+      console.log(typeof formData);
+      console.log("got");
+      axios
+        .post(`/api/upload`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "x-auth-token": token
+          },
+          userEmail
+        })
+        .then(response => {
+          // handle your response;
+          this.cancelUpload();
+          this.loadUser();
+        })
+        .catch(error => {
+          // handle your error
+          this.setState({ uploadMessage: "Please choose a valid image file" });
+        })
+        .finally(() => {
+          this.setState({ editImageLoading: false }, () => {
+            this.loadUser();
+          });
+        });
+    } else {
+      this.setState({
+        uploadMessage: "Please choose a file",
+        editImageLoading: false
+      });
+    }
+  };
+
+  cancelUpload = () => {
+    this.setState({ editImage: false, uploadMessage: null });
+  };
+  handleFileUpload = event => {
+    this.setState({ file: event.target.files });
+  };
+
   render() {
+    if (this.state.auth.user) {
+      console.log(this.state.auth.user);
+    }
     const authLinks = (
       <>
         <Nav.ItemLink active href="#" onClick={this.logout.bind(this)}>
@@ -1099,9 +1157,84 @@ class App extends Component {
                   )}
                 </Modal>
                 {this.state.auth.user ? (
-                  <p className="mb-0 mt-3 width-check">
-                    <em> Welcome {this.state.auth.user.name},</em>
-                  </p>
+                  <>
+                    <>
+                      <div className="profile-pic-div">
+                        <img
+                          title="edit image"
+                          alt="not available"
+                          onError={() => {
+                            console.log("errrrrrrrr");
+                          }}
+                          class={`pic-img`}
+                          onClick={this.handleProfilePic}
+                          src={
+                            this.state.auth.user.profile_pic
+                              ? `https://flora-details-profile-pics.s3-us-west-1.amazonaws.com/${this.state.auth.user.pic_uri}`
+                              : `https://flora-details-profile-pics.s3-us-west-1.amazonaws.com/generic-dp.jpg`
+                          }
+                        ></img>
+                      </div>
+
+                      {this.state.editImage && (
+                        <>
+                          {" "}
+                          <>
+                            <div className={`editImage`}>
+                              {this.state.uploadMessage && (
+                                <p className={`mt-1 mb-1 editImageWarning`}>
+                                  {this.state.uploadMessage}
+                                </p>
+                              )}
+                              <form
+                                class={`mt-1 mb-1`}
+                                onSubmit={this.submitFile}
+                              >
+                                <input
+                                  class={`imageInput`}
+                                  label="upload file"
+                                  type="file"
+                                  onChange={this.handleFileUpload}
+                                />
+                                {this.state.editImageLoading ? (
+                                  <>
+                                    <Button primary className="loader-button">
+                                      <Loader
+                                        type="Puff"
+                                        color="#00BFFF"
+                                        height={25}
+                                        width={25}
+                                        // timeout={1000} //3 secs
+                                      />{" "}
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Button
+                                      className={`btn btn-primary imageInputBtn`}
+                                      type="submit"
+                                    >
+                                      Upload
+                                    </Button>
+                                  </>
+                                )}
+
+                                <Button
+                                  className={`btn btn-secondary imageInputBtn ml-3`}
+                                  onClick={this.cancelUpload}
+                                >
+                                  Cancel
+                                </Button>
+                              </form>
+                            </div>
+                          </>
+                        </>
+                      )}
+                      <p className="mb-0 mt-1 width-check">
+                        <em> Welcome {this.state.auth.user.name},</em>
+                      </p>
+                    </>
+                  </>
                 ) : null}
 
                 <SearchBar

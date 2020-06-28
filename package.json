@@ -12,7 +12,9 @@
     "react-loader-spinner": "^3.1.14",
     "react-scripts": "3.1.1",
     "react-select": "^3.0.4",
-    "zxcvbn": "^4.4.2"
+    "zxcvbn": "^4.4.2",
+    "react-bootstrap4-modal": "^1.7.4",
+    "react-icons": "^3.10.0"
   },
   "scripts": {
     "start": "react-scripts start",

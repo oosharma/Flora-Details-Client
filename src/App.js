@@ -170,7 +170,7 @@ class App extends Component {
         filter: { email: this.state.auth.user.email },
         update: { items: updateItem }
       };
-      axios.post("api/userItem", body, config).then(res => {
+      axios.post("api/api/userItem", body, config).then(res => {
         this.loadUser();
       });
     }
@@ -191,7 +191,7 @@ class App extends Component {
       window.alert("item already in pinned section");
     } else {
       axios
-        .post("/api/items", {
+        .post("/api/api/items", {
           id: idToBeAdded,
           commonName: this.state.addItem.commonName,
           bloomTime: this.state.addItem.bloomTime,
@@ -260,7 +260,7 @@ class App extends Component {
   getDataFromDb = () => {
     if (this.state.fetch) {
       axios
-        .get("/api/items")
+        .get("/api/api/items")
         .then(res => {
           this.setState({ data: res.data, fetch: false });
         })
@@ -283,7 +283,7 @@ class App extends Component {
       filter: { email: this.state.auth.user.email },
       update: { items: updateItem }
     };
-    axios.post("api/userItem", body, config).then(res => {
+    axios.post("/api/api/userItem", body, config).then(res => {
       this.loadUser();
     });
   };
@@ -303,7 +303,7 @@ class App extends Component {
       }
     });
     axios
-      .delete(`/api/items/${idTodelete}`)
+      .delete(`/api/api/items/${idTodelete}`)
       .then(() => {
         this.setState({ fetch: true });
       })
@@ -388,7 +388,7 @@ class App extends Component {
     const config = this.tokenConfig();
     const body = JSON.stringify({ email, password });
     axios
-      .post("api/auth", body, config)
+      .post("api/api/auth", body, config)
       .then(res => {
         this.loginSuccess(res.data);
       })
@@ -447,7 +447,7 @@ class App extends Component {
     const body = JSON.stringify({ name, email, password });
 
     axios
-      .post("api/users", body, config)
+      .post("api/api/users", body, config)
       .then(res => {
         this.registerSuccess(res.data);
       })
@@ -474,7 +474,7 @@ class App extends Component {
     this.setState({ auth: authUpdate });
     const config = this.tokenConfig();
     axios
-      .get("api/auth/user", config)
+      .get("api/api/auth/user", config)
       .then(res => {
         this.userLoaded(res);
       })
@@ -593,7 +593,7 @@ class App extends Component {
       const config = this.tokenConfig();
       const body = JSON.stringify({ email });
       axios
-        .post("api/reset", body, config)
+        .post("api/api/reset", body, config)
         .then(res => {
           this.handleResetEmailSentSuccess(res.data);
         })
@@ -636,7 +636,7 @@ class App extends Component {
     const body = JSON.stringify({ password });
     this.clearPassError();
     axios
-      .post("api/passReset", body, config)
+      .post("api/api/passReset", body, config)
       .then(res => {
         this.handlePassResetSuccess(res.data);
       })
@@ -684,7 +684,7 @@ class App extends Component {
       formData.append("file", this.state.file[0]);
 
       axios
-        .post(`/api/upload`, formData, {
+        .post(`/api/api/upload`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             "x-auth-token": token
